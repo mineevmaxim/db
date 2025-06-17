@@ -1,6 +1,5 @@
-namespace Game.Domain
+namespace Game.Domain;
+
+public class MongoGameTurnRepository : IGameTurnRepository
 {
-    public class MongoGameTurnRepository : IGameTurnRepository
-    {
-    }
 }

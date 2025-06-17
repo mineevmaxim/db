@@ -1,10 +1,9 @@
-namespace Game.Domain
+namespace Game.Domain;
+
+public enum GameStatus
 {
-    public enum GameStatus
-    {
-        WaitingToStart,
-        Playing,
-        Finished,
-        Canceled
-    }
+    WaitingToStart,
+    Playing,
+    Finished,
+    Canceled
 }

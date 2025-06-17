@@ -1,7 +1,6 @@
-namespace Game.Domain
+namespace Game.Domain;
+
+public interface IGameTurnRepository
 {
-    public interface IGameTurnRepository
-    {
-        // TODO: Спроектировать интерфейс исходя из потребностей ConsoleApp
-    }
+    // TODO: Спроектировать интерфейс исходя из потребностей ConsoleApp
 }
