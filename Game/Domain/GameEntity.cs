@@ -34,6 +34,7 @@ public class GameEntity
         private set;
     }
 
+    [BsonIgnore]
     public IReadOnlyList<Player> Players => players.AsReadOnly();
 
     [BsonElement]
