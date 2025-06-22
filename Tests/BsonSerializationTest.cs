@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using FluentAssertions;
 using Game.Domain;
 using MongoDB.Bson.IO;
@@ -54,7 +55,9 @@ namespace Tests
 
             var deserializedEntity = BsonSerializer.Deserialize<TEntity>(new MemoryStream(bytes));
 
-            Console.WriteLine(deserializedEntity);
+            Console.WriteLine(JsonSerializer.Serialize(deserializedEntity));
+            Console.WriteLine("\n");
+            Console.WriteLine(JsonSerializer.Serialize(entity));
             deserializedEntity.Should().BeEquivalentTo(entity);
         }
     }

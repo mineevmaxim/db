@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Game.Domain;
 
+[DataContract]
 public class GameEntity
 {
-    [BsonElement]
+    [BsonElement("players")]
     private readonly List<Player> players;
 
     public GameEntity(int turnsCount)
@@ -31,11 +35,16 @@ public class GameEntity
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local For MongoDB
         private set;
     }
-    
+
     public IReadOnlyList<Player> Players => players.AsReadOnly();
-    
+
+    [BsonElement]
     public int TurnsCount { get; }
+
+    [BsonElement]
     public int CurrentTurnIndex { get; private set; }
+
+    [BsonElement]
     public GameStatus Status { get; private set; }
 
     public void AddPlayer(UserEntity user)

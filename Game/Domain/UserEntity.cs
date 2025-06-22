@@ -56,10 +56,8 @@ public class UserEntity
 
     public void ExitGame()
     {
-        if (CurrentGameId.HasValue)
-        {
-            GamesPlayed++;
-            CurrentGameId = null;
-        }
+        if (!CurrentGameId.HasValue) return;
+        GamesPlayed++;
+        CurrentGameId = null;
     }
 }
