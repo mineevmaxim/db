@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver;
 
 namespace Game.Domain;
@@ -8,37 +9,49 @@ namespace Game.Domain;
 public class MongoGameRepository : IGameRepository
 {
     public const string CollectionName = "games";
+    private readonly IMongoCollection<GameEntity> gamesCollection;
 
     public MongoGameRepository(IMongoDatabase db)
     {
+        gamesCollection = db.GetCollection<GameEntity>(CollectionName);
     }
 
     public GameEntity Insert(GameEntity game)
     {
-        throw new NotImplementedException();
+        gamesCollection.InsertOne(game);
+        return game;
     }
 
     public GameEntity FindById(Guid gameId)
     {
-        throw new NotImplementedException();
+        return gamesCollection.Find(x => x.Id == gameId).FirstOrDefault();
     }
 
     public void Update(GameEntity game)
     {
-        throw new NotImplementedException();
+        gamesCollection.ReplaceOne(x => x.Id == game.Id, game);
     }
 
     // Возвращает не более чем limit игр со статусом GameStatus.WaitingToStart
     public IList<GameEntity> FindWaitingToStart(int limit)
     {
-        //TODO: Используй Find и Limit
-        throw new NotImplementedException();
+        return gamesCollection
+            .Find(g => g.Status == GameStatus.WaitingToStart)
+            .Limit(limit)
+            .ToList();
     }
 
     // Обновляет игру, если она находится в статусе GameStatus.WaitingToStart
     public bool TryUpdateWaitingToStart(GameEntity game)
     {
-        //TODO: Для проверки успешности используй IsAcknowledged и ModifiedCount из результата
-        throw new NotImplementedException();
+        var currentGame = FindById(game.Id);
+        if (currentGame == null)
+            return false;
+        
+        if (currentGame.Status != GameStatus.WaitingToStart)
+            return false;
+
+        var updateResult = gamesCollection.ReplaceOne(x => x.Id == game.Id, game);
+        return updateResult.IsAcknowledged || updateResult.ModifiedCount > 0;
     }
 }

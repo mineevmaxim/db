@@ -127,7 +127,7 @@ public class MongoUserRepositoryShould
     // [Explicit("Это дополнительная задача Индекс")]
     public void LoginDuplicateNotAllowed()
     {
-        Action action = () =>
+        var action = () =>
         {
             repo.Insert(new UserEntity(Guid.Empty, "somelogin", "last1", "first1", 0, null));
             repo.Insert(new UserEntity(Guid.Empty, "somelogin", "last2", "first2", 0, null));
@@ -136,10 +136,10 @@ public class MongoUserRepositoryShould
     }
 
     [Test(Description = "Параллельные запросы не должны падать")]
-    // [Explicit("Наивная реализация GetOrCreateByLogin не пройдет этот тест")]
+    [Explicit("Наивная реализация GetOrCreateByLogin не пройдет этот тест")]
     public void MassiveConcurrentCreateUser()
     {
-        for (int i = 0; i < 1000; i++)
+        for (var i = 0; i < 1000; i++)
         {
             var login = "login" + i;
             Task.WaitAll(
