@@ -9,15 +9,15 @@ class Program
 {
     private readonly IUserRepository userRepo;
     private readonly IGameRepository gameRepo;
+    private readonly IGameTurnRepository gameTurnRepo;
     private readonly Random random = new Random();
 
     private Program(string[] args)
     {
         var db = TestMongoDatabase.Create();
-        db.DropCollection(MongoUserRepository.CollectionName);
-        db.DropCollection(MongoGameRepository.CollectionName);
         userRepo = new MongoUserRepository(db);
         gameRepo = new MongoGameRepository(db);
+        gameTurnRepo = new MongoGameTurnRepository(db);
     }
 
     public static void Main(string[] args)
@@ -120,12 +120,14 @@ class Program
         game.SetPlayerDecision(humanUserId, decision.Value);
 
         var aiPlayer = game.Players.First(p => p.UserId != humanUserId);
-        game.SetPlayerDecision(aiPlayer.UserId, GetAiDecision());
+        var aiDecision = GetAiDecision();
+        game.SetPlayerDecision(aiPlayer.UserId, aiDecision);
 
         if (game.HaveDecisionOfEveryPlayer)
         {
             // TODO: Сохранить информацию о прошедшем туре в IGameTurnRepository. Сформировать информацию о закончившемся туре внутри FinishTurn и вернуть её сюда.
-            game.FinishTurn();
+            var turn = game.FinishTurn();
+            gameTurnRepo.Add(turn);
         }
 
         ShowScore(game);
@@ -162,9 +164,9 @@ class Program
     {
         Console.WriteLine();
         Console.WriteLine("Select your next decision:");
-        Console.WriteLine("1 - Rock");
-        Console.WriteLine("2 - Scissors");
-        Console.WriteLine("3 - Paper");
+        Console.WriteLine("1 — Rock");
+        Console.WriteLine("2 — Scissors");
+        Console.WriteLine("3 — Paper");
 
         while (true)
         {
@@ -187,6 +189,10 @@ class Program
     {
         var players = game.Players;
         // TODO: Показать информацию про 5 последних туров: кто как ходил и кто в итоге выиграл. Прочитать эту информацию из IGameTurnRepository
+        var turns = gameTurnRepo.GetByGameId(game.Id);
+        foreach (var turn in turns)
+            Console.WriteLine(turn);
+        
         Console.WriteLine($"Score: {players[0].Name} {players[0].Score} : {players[1].Score} {players[1].Name}");
     }
 }

@@ -84,24 +84,37 @@ public class GameEntity
 
     public GameTurnEntity FinishTurn()
     {
-        for (var i = 0; i < 2; i++)
+        var player = Players[0];
+        var opponent = Players[1];
+        var winnerId = Guid.Empty;
+        if (!player.Decision.HasValue || !opponent.Decision.HasValue)
+            throw new InvalidOperationException();
+        if (player.Decision.Value.Beats(opponent.Decision.Value))
         {
-            var player = Players[i];
-            var opponent = Players[1 - i];
-            if (!player.Decision.HasValue || !opponent.Decision.HasValue)
-                throw new InvalidOperationException();
-            if (player.Decision.Value.Beats(opponent.Decision.Value))
-                player.Score++;
+            player.Score++;
+            winnerId = player.UserId;
+        }
+        else if (opponent.Decision.Value.Beats(player.Decision.Value))
+        {
+            opponent.Score++;
+            winnerId = opponent.UserId;
         }
 
-        //TODO Заполнить все внутри GameTurnEntity, в том числе winnerId
-        var result = new GameTurnEntity();
-        // Это должно быть после создания GameTurnEntity
-        foreach (var player in Players)
-            player.Decision = null;
         CurrentTurnIndex++;
         if (CurrentTurnIndex == TurnsCount)
             Status = GameStatus.Finished;
+
+        var result = new GameTurnEntity(
+            Id,
+            Guid.NewGuid(),
+            winnerId,
+            Players.ToArray(),
+            CurrentTurnIndex - 1
+        );
+        
+        foreach (var p in Players)
+            p.Decision = null;
+
         return result;
     }
 }
